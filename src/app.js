@@ -82,6 +82,7 @@
     infoTabHelp: document.getElementById('infoTabHelp'),
     infoTabAbout: document.getElementById('infoTabAbout'),
     infoTabLicense: document.getElementById('infoTabLicense'),
+    infoTabThirdParty: document.getElementById('infoTabThirdParty'),
   };
 
   const state = {
@@ -197,6 +198,7 @@
     license: "# Polyform Noncommercial License 1.0.0\n\n<https://polyformproject.org/licenses/noncommercial/1.0.0>\n\n## Acceptance\n\nIn order to get any license under these terms, you must agree to them as both strict obligations and conditions to all your licenses.\n\n## Copyright License\n\nThe licensor grants you a copyright license for the software to do everything you might do with the software that would otherwise infringe the licensor's copyright in it for any permitted purpose.  However, you may only distribute the software according to [Distribution License](#distribution-license) and make changes or new works based on the software according to [Changes and New Works License](#changes-and-new-works-license).\n\n## Distribution License\n\nThe licensor grants you an additional copyright license to distribute copies of the software.  Your license to distribute covers distributing the software with changes and new works permitted by [Changes and New Works License](#changes-and-new-works-license).\n\n## Notices\n\nYou must ensure that anyone who gets a copy of any part of the software from you also gets a copy of these terms or the URL for them above, as well as copies of any plain-text lines beginning with `Required Notice:` that the licensor provided with the software.  For example:\n\n> Required Notice: Copyright Yoyodyne, Inc. (http://example.com)\n\n## Changes and New Works License\n\nThe licensor grants you an additional copyright license to make changes and new works based on the software for any permitted purpose.\n\n## Patent License\n\nThe licensor grants you a patent license for the software that covers patent claims the licensor can license, or becomes able to license, that you would infringe by using the software.\n\n## Noncommercial Purposes\n\nAny noncommercial purpose is a permitted purpose.\n\n## Personal Uses\n\nPersonal use for research, experiment, and testing for the benefit of public knowledge, personal study, private entertainment, hobby projects, amateur pursuits, or religious observance, without any anticipated commercial application, is use for a permitted purpose.\n\n## Noncommercial Organizations\n\nUse by any charitable organization, educational institution, public research organization, public safety or health organization, environmental protection organization, or government institution is use for a permitted purpose regardless of the source of funding or obligations resulting from the funding.\n\n## Fair Use\n\nYou may have \"fair use\" rights for the software under the law. These terms do not limit them.\n\n## No Other Rights\n\nThese terms do not allow you to sublicense or transfer any of your licenses to anyone else, or prevent the licensor from granting licenses to anyone else.  These terms do not imply any other licenses.\n\n## Patent Defense\n\nIf you make any written claim that the software infringes or contributes to infringement of any patent, your patent license for the software granted under these terms ends immediately. If your company makes such a claim, your patent license ends immediately for work on behalf of your company.\n\n## Violations\n\nThe first time you are notified in writing that you have violated any of these terms, or done anything with the software not covered by your licenses, your licenses can nonetheless continue if you come into full compliance with these terms, and take practical steps to correct past violations, within 32 days of receiving notice.  Otherwise, all your licenses end immediately.\n\n## No Liability\n\n***As far as the law allows, the software comes as is, without any warranty or condition, and the licensor will not be liable to you for any damages arising out of these terms or the use or nature of the software, under any kind of legal claim.***\n\n## Definitions\n\nThe **licensor** is the individual or entity offering these terms, and the **software** is the software the licensor makes available under these terms.\n\n**You** refers to the individual or entity agreeing to these terms.\n\n**Your company** is any legal entity, sole proprietorship, or other kind of organization that you work for, plus all organizations that have control over, are under the control of, or are under common control with that organization.  **Control** means ownership of substantially all the assets of an entity, or the power to direct its management and policies by vote, contract, or otherwise.  Control can be direct or indirect.\n\n**Your licenses** are all the licenses granted to you for the software under these terms.\n\n**Use** means anything you do with the software requiring one of your licenses.\n",
     notice: "Required Notice: Copyright (c) 2026 Taoran\n",
     commercial: "# Commercial Licensing\n\nThis project is made available under the Polyform Noncommercial License 1.0.0 (see `LICENSE`), which permits noncommercial use and prohibits commercial use.\n\nIf you want to use this software for a commercial purpose (including internal use at a for-profit company, embedding into a paid product, or providing it as part of a paid service), you must obtain a separate commercial license from the licensor.\n\nTo request commercial licensing terms, contact the project owner/maintainer.\n",
+    thirdPartyNotices: "# Third-Party Notices\n+\n+This project bundles third-party software components (primarily under `vendor/`). These components are licensed by their respective authors under the terms referenced below.\n+\n+## Bundled Components\n+\n+### dcmjs\n+\n+- Source: https://github.com/dcmjs-org/dcmjs\n+- License: Mozilla Public License 2.0 (MPL-2.0)\n+- Files: `vendor/dcmjs.js`\n+- Full license text: `licenses/MPL-2.0.txt`\n+\n+Note: `vendor/dcmjs.js` includes additional third-party subcomponents; their copyright and license notices are included within the file headers/comments where applicable.\n+\n+### dicom-parser (dicomParser)\n+\n+- Source: https://github.com/cornerstonejs/dicomParser\n+- License: MIT\n+- Files: `vendor/dicom-parser.min.js`\n+- Full license text: `licenses/MIT-dicom-parser.txt`\n+\n+### Mapbox earcut (embedded/trimmed)\n+\n+- Source: https://github.com/mapbox/earcut\n+- License: ISC\n+- Used in: `vendor/rt-layered-cake.js` (a trimmed/embedded earcut implementation is included in this file)\n+- Full license text: `licenses/ISC-earcut.txt`\n+",
   };
 
   async function fetchTextOrNull(path) {
@@ -214,6 +216,7 @@
       { key: 'help', el: els.infoTabHelp, title: 'Help' },
       { key: 'about', el: els.infoTabAbout, title: 'About' },
       { key: 'license', el: els.infoTabLicense, title: 'Licensing' },
+      { key: 'third_party', el: els.infoTabThirdParty, title: 'Third-Party' },
     ];
     for (const t of tabs) {
       if (!t.el) continue;
@@ -247,6 +250,12 @@
       parts.push('\n== COMMERCIAL-LICENSE.md ==');
       parts.push(commercial || '(Could not load COMMERCIAL-LICENSE.md)');
       els.infoModalBody.textContent = parts.join('\n');
+      return;
+    }
+
+    if (tab === 'third_party') {
+      const notices = (await fetchTextOrNull('THIRD_PARTY_NOTICES.md')) || EMBEDDED_DOCS.thirdPartyNotices;
+      els.infoModalBody.textContent = notices || 'Could not load THIRD_PARTY_NOTICES.md.';
       return;
     }
 
@@ -4427,6 +4436,7 @@
   if (els.infoTabHelp) els.infoTabHelp.addEventListener('click', () => loadInfoModalTab('help'));
   if (els.infoTabAbout) els.infoTabAbout.addEventListener('click', () => loadInfoModalTab('about'));
   if (els.infoTabLicense) els.infoTabLicense.addEventListener('click', () => loadInfoModalTab('license'));
+  if (els.infoTabThirdParty) els.infoTabThirdParty.addEventListener('click', () => loadInfoModalTab('third_party'));
   if (els.infoModalCopy && els.infoModalBody) {
     els.infoModalCopy.addEventListener('click', async () => {
       const text = els.infoModalBody.textContent || '';

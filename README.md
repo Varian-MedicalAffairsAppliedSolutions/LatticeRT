@@ -31,6 +31,12 @@ Browsers often block local script loading from `file://`. Serve this folder with
 python3 -m http.server 8000
 ```
 
+Or using the included Node package scripts:
+
+```bash
+npm run serve
+```
+
 Then open:
 - `http://localhost:8000/`
 
@@ -84,3 +90,7 @@ Commercial use requires a separate license from the licensor:
 - `COMMERCIAL-LICENSE.md`
 
 Third-party components under `vendor/` are licensed by their respective authors (see file headers).
+
+Third-party notices and license texts:
+- `THIRD_PARTY_NOTICES.md`
+- `licenses/`
