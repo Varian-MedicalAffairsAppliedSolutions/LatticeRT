@@ -66,6 +66,22 @@
     btnMeasure: document.getElementById('btnMeasure'),
     btnClearMeasure: document.getElementById('btnClearMeasure'),
     measureLabel: document.getElementById('measureLabel'),
+    launchDisclaimerModal: document.getElementById('launchDisclaimerModal'),
+    launchDisclaimerAccept: document.getElementById('launchDisclaimerAccept'),
+    exportDisclaimerModal: document.getElementById('exportDisclaimerModal'),
+    exportDisclaimerCancel: document.getElementById('exportDisclaimerCancel'),
+    exportDisclaimerConfirm: document.getElementById('exportDisclaimerConfirm'),
+    btnAbout: document.getElementById('btnAbout'),
+    btnHelp: document.getElementById('btnHelp'),
+    infoModal: document.getElementById('infoModal'),
+    infoModalTitle: document.getElementById('infoModalTitle'),
+    infoModalBody: document.getElementById('infoModalBody'),
+    infoModalOk: document.getElementById('infoModalOk'),
+    infoModalClose: document.getElementById('infoModalClose'),
+    infoModalCopy: document.getElementById('infoModalCopy'),
+    infoTabHelp: document.getElementById('infoTabHelp'),
+    infoTabAbout: document.getElementById('infoTabAbout'),
+    infoTabLicense: document.getElementById('infoTabLicense'),
   };
 
   const state = {
@@ -169,6 +185,131 @@
 
   function clearNode(node) {
     while (node.firstChild) node.removeChild(node.firstChild);
+  }
+
+  function setModalOpen(modalEl, open) {
+    if (!modalEl) return;
+    modalEl.classList.toggle('show', !!open);
+  }
+
+  const EMBEDDED_DOCS = {
+    readme: "# SFRT Sphere Lattice (Web)\n\nBrowser-based, local-only research tool to:\n- Load a CT series + RTSTRUCT from local DICOM files (no uploads)\n- Select a target ROI (typically PTV)\n- Generate a sphere lattice (HCP / SC / AC / CVT3D) aligned to the ROI centroid\n- Export a derived RTSTRUCT containing generated sphere contours (same FrameOfReferenceUID, new UIDs)\n\nThis is research tooling and is not validated for clinical use.\n\n## Primary Reference (Upstream Inspiration)\n\nThis project is essentially a web-based reimplementation of the methodology in:\n- https://github.com/Varian-MedicalAffairsAppliedSolutions/MAAS-SFRThelper\n\nIt adds enhancements in visualization and workflow (multi-viewport + 3D view, interactive tools, and additional generation/export features).\n\nThis repository does not include or distribute upstream source code, datasets, or any local reference/test folders; if you use upstream materials separately, ensure you comply with their license and terms.\n\n## Safety / Disclaimer\n\n- Not validated for clinical use: do not use for diagnosis or treatment planning.\n- You assume full responsibility for any use and for reviewing/verifying any exported DICOM.\n- The app shows acknowledgement prompts on launch and again before RTSTRUCT export.\n\n## Open\n\nBrowsers often block local script loading from `file://`. Serve this folder with any static file server, for example:\n\n```bash\npython3 -m http.server 8000\n```\n\nThen open:\n- `http://localhost:8000/`\n\n## Usage\n\n1. Drop/select CT slice DICOMs and an RTSTRUCT.\n2. Pick the CT Series and RTSTRUCT (filtered by referenced Series when possible).\n3. Pick the target ROI.\n4. Configure lattice parameters and click **Generate Spheres**.\n5. Click **Export RTSTRUCT** to download a derived RS DICOM.\n\nViewer interactions:\n- Scroll wheel on a viewport changes its slice (Axial = Z, Coronal = Row, Sagittal = Col).\n- Left-click in a viewport moves the crosshair (syncs the other views).\n- 3D view: drag to orbit, wheel to zoom.\n\n## Methodology (high level)\n\n- Import and geometry\n  - CT slices are grouped by `SeriesInstanceUID` and used to reconstruct volume geometry (spacing, orientation, origin).\n  - RTSTRUCT contours are parsed and associated to the selected CT series when references are present.\n- ROI representation and inclusion tests\n  - The target ROI is interpreted as per-slice filled regions (\u201clayered cake\u201d slabs) for point-in-ROI testing.\n  - Sphere placement checks support:\n    - Center-in-ROI (with optional boundary margin)\n    - \u201cFull spheres only\u201d via sphere surface sampling (approximate; not a TPS margin/erosion)\n- Lattice generation\n  - Candidate sphere centers are generated in 3D using the selected pattern and spacing.\n  - The lattice is translated so its centroid aligns to the target ROI centroid, with optional user shifts.\n  - Spheres are classified (Peak/Warm/Cold) depending on the selected sphere set.\n- Rendering\n  - 4-up view: Axial/Sagittal/Coronal + 3D.\n  - CT planes are rendered via WebGL; overlays are drawn in mm-space to preserve aspect.\n- Export (derived RTSTRUCT)\n  - A new RTSTRUCT is created by cloning metadata and writing new contour sequences for generated ROIs.\n  - `FrameOfReferenceUID` is preserved; new `SeriesInstanceUID` and `SOPInstanceUID` values are generated.\n\n## References\n\n- MAAS-SFRThelper (primary reference): https://github.com/Varian-MedicalAffairsAppliedSolutions/MAAS-SFRThelper\n- DICOM standard (RT Structure Set IOD and coordinate systems).\n- Sphere-lattice patterns: Simple Cubic (SC), Hexagonal Closest Packed (HCP), and related packing / sampling concepts.\n\n## License\n\nNoncommercial use is permitted under the Polyform Noncommercial License 1.0.0:\n- `LICENSE`\n- `NOTICE`\n\nCommercial use requires a separate license from the licensor:\n- `COMMERCIAL-LICENSE.md`\n\nThird-party components under `vendor/` are licensed by their respective authors (see file headers).\n",
+    license: "# Polyform Noncommercial License 1.0.0\n\n<https://polyformproject.org/licenses/noncommercial/1.0.0>\n\n## Acceptance\n\nIn order to get any license under these terms, you must agree to them as both strict obligations and conditions to all your licenses.\n\n## Copyright License\n\nThe licensor grants you a copyright license for the software to do everything you might do with the software that would otherwise infringe the licensor's copyright in it for any permitted purpose.  However, you may only distribute the software according to [Distribution License](#distribution-license) and make changes or new works based on the software according to [Changes and New Works License](#changes-and-new-works-license).\n\n## Distribution License\n\nThe licensor grants you an additional copyright license to distribute copies of the software.  Your license to distribute covers distributing the software with changes and new works permitted by [Changes and New Works License](#changes-and-new-works-license).\n\n## Notices\n\nYou must ensure that anyone who gets a copy of any part of the software from you also gets a copy of these terms or the URL for them above, as well as copies of any plain-text lines beginning with `Required Notice:` that the licensor provided with the software.  For example:\n\n> Required Notice: Copyright Yoyodyne, Inc. (http://example.com)\n\n## Changes and New Works License\n\nThe licensor grants you an additional copyright license to make changes and new works based on the software for any permitted purpose.\n\n## Patent License\n\nThe licensor grants you a patent license for the software that covers patent claims the licensor can license, or becomes able to license, that you would infringe by using the software.\n\n## Noncommercial Purposes\n\nAny noncommercial purpose is a permitted purpose.\n\n## Personal Uses\n\nPersonal use for research, experiment, and testing for the benefit of public knowledge, personal study, private entertainment, hobby projects, amateur pursuits, or religious observance, without any anticipated commercial application, is use for a permitted purpose.\n\n## Noncommercial Organizations\n\nUse by any charitable organization, educational institution, public research organization, public safety or health organization, environmental protection organization, or government institution is use for a permitted purpose regardless of the source of funding or obligations resulting from the funding.\n\n## Fair Use\n\nYou may have \"fair use\" rights for the software under the law. These terms do not limit them.\n\n## No Other Rights\n\nThese terms do not allow you to sublicense or transfer any of your licenses to anyone else, or prevent the licensor from granting licenses to anyone else.  These terms do not imply any other licenses.\n\n## Patent Defense\n\nIf you make any written claim that the software infringes or contributes to infringement of any patent, your patent license for the software granted under these terms ends immediately. If your company makes such a claim, your patent license ends immediately for work on behalf of your company.\n\n## Violations\n\nThe first time you are notified in writing that you have violated any of these terms, or done anything with the software not covered by your licenses, your licenses can nonetheless continue if you come into full compliance with these terms, and take practical steps to correct past violations, within 32 days of receiving notice.  Otherwise, all your licenses end immediately.\n\n## No Liability\n\n***As far as the law allows, the software comes as is, without any warranty or condition, and the licensor will not be liable to you for any damages arising out of these terms or the use or nature of the software, under any kind of legal claim.***\n\n## Definitions\n\nThe **licensor** is the individual or entity offering these terms, and the **software** is the software the licensor makes available under these terms.\n\n**You** refers to the individual or entity agreeing to these terms.\n\n**Your company** is any legal entity, sole proprietorship, or other kind of organization that you work for, plus all organizations that have control over, are under the control of, or are under common control with that organization.  **Control** means ownership of substantially all the assets of an entity, or the power to direct its management and policies by vote, contract, or otherwise.  Control can be direct or indirect.\n\n**Your licenses** are all the licenses granted to you for the software under these terms.\n\n**Use** means anything you do with the software requiring one of your licenses.\n",
+    notice: "Required Notice: Copyright (c) 2026 Taoran\n",
+    commercial: "# Commercial Licensing\n\nThis project is made available under the Polyform Noncommercial License 1.0.0 (see `LICENSE`), which permits noncommercial use and prohibits commercial use.\n\nIf you want to use this software for a commercial purpose (including internal use at a for-profit company, embedding into a paid product, or providing it as part of a paid service), you must obtain a separate commercial license from the licensor.\n\nTo request commercial licensing terms, contact the project owner/maintainer.\n",
+  };
+
+  async function fetchTextOrNull(path) {
+    try {
+      const res = await fetch(path, { cache: 'no-store' });
+      if (!res.ok) return null;
+      return await res.text();
+    } catch (_e) {
+      return null;
+    }
+  }
+
+  function setInfoModalActiveTab(tab) {
+    const tabs = [
+      { key: 'help', el: els.infoTabHelp, title: 'Help' },
+      { key: 'about', el: els.infoTabAbout, title: 'About' },
+      { key: 'license', el: els.infoTabLicense, title: 'Licensing' },
+    ];
+    for (const t of tabs) {
+      if (!t.el) continue;
+      t.el.classList.toggle('active', t.key === tab);
+    }
+    if (els.infoModalTitle) {
+      const t = tabs.find((x) => x.key === tab);
+      els.infoModalTitle.textContent = t ? t.title : 'Info';
+    }
+  }
+
+  async function loadInfoModalTab(tab) {
+    if (!els.infoModalBody) return;
+    setInfoModalActiveTab(tab);
+
+    if (tab === 'help') {
+      const readme = (await fetchTextOrNull('README.md')) || EMBEDDED_DOCS.readme;
+      els.infoModalBody.textContent = readme || 'Could not load README.md.';
+      return;
+    }
+
+    if (tab === 'license') {
+      const lic = (await fetchTextOrNull('LICENSE')) || EMBEDDED_DOCS.license;
+      const notice = (await fetchTextOrNull('NOTICE')) || EMBEDDED_DOCS.notice;
+      const commercial = (await fetchTextOrNull('COMMERCIAL-LICENSE.md')) || EMBEDDED_DOCS.commercial;
+      const parts = [];
+      parts.push('== LICENSE ==');
+      parts.push(lic || '(Could not load LICENSE)');
+      parts.push('\n== NOTICE ==');
+      parts.push(notice || '(Could not load NOTICE)');
+      parts.push('\n== COMMERCIAL-LICENSE.md ==');
+      parts.push(commercial || '(Could not load COMMERCIAL-LICENSE.md)');
+      els.infoModalBody.textContent = parts.join('\n');
+      return;
+    }
+
+    // about
+    els.infoModalBody.textContent = [
+      'SFRT Sphere Lattice (Web)',
+      '',
+      'Primary reference (upstream inspiration):',
+      'https://github.com/Varian-MedicalAffairsAppliedSolutions/MAAS-SFRThelper',
+      '',
+      'Research tool — not validated for clinical use.',
+      'You assume full responsibility for use and for verifying any exported DICOM.',
+      '',
+      'Licensing:',
+      '- Noncommercial use permitted (see LICENSE + NOTICE).',
+      '- Commercial use requires a separate license (see COMMERCIAL-LICENSE.md).',
+      '',
+      'Third-party components under vendor/ are licensed by their respective authors (see file headers).',
+    ].join('\n');
+  }
+
+  function openInfoModal(tab) {
+    if (!els.infoModal) return;
+    setModalOpen(els.infoModal, true);
+    loadInfoModalTab(tab);
+  }
+
+  function closeInfoModal() {
+    if (!els.infoModal) return;
+    setModalOpen(els.infoModal, false);
+  }
+
+  function showLaunchDisclaimerModal() {
+    if (!els.launchDisclaimerModal) return;
+    setModalOpen(els.launchDisclaimerModal, true);
+    if (els.launchDisclaimerAccept) els.launchDisclaimerAccept.focus();
+  }
+
+  function withExportDisclaimer(doExport) {
+    if (!els.exportDisclaimerModal || !els.exportDisclaimerConfirm || !els.exportDisclaimerCancel) {
+      doExport();
+      return;
+    }
+
+    setModalOpen(els.exportDisclaimerModal, true);
+    els.exportDisclaimerConfirm.focus();
+
+    const cleanup = () => {
+      setModalOpen(els.exportDisclaimerModal, false);
+      els.exportDisclaimerConfirm.removeEventListener('click', onConfirm);
+      els.exportDisclaimerCancel.removeEventListener('click', onCancel);
+      els.exportDisclaimerModal.removeEventListener('click', onBackdrop);
+      window.removeEventListener('keydown', onKeydown, true);
+    };
+    const onConfirm = () => { cleanup(); doExport(); };
+    const onCancel = () => { cleanup(); };
+    const onBackdrop = (e) => { if (e.target === els.exportDisclaimerModal) onCancel(); };
+    const onKeydown = (e) => { if (e.key === 'Escape') onCancel(); };
+
+    els.exportDisclaimerConfirm.addEventListener('click', onConfirm);
+    els.exportDisclaimerCancel.addEventListener('click', onCancel);
+    els.exportDisclaimerModal.addEventListener('click', onBackdrop);
+    window.addEventListener('keydown', onKeydown, true);
   }
 
   function createPill(text) {
@@ -4254,7 +4395,7 @@
 
   els.btnGenerate.addEventListener('click', () => generateSpheres());
   els.btnClear.addEventListener('click', () => clearGenerated());
-  els.btnExport.addEventListener('click', () => exportRtstruct());
+  els.btnExport.addEventListener('click', () => withExportDisclaimer(() => exportRtstruct()));
   els.patternSelect.addEventListener('change', onPatternChanged);
   onPatternChanged();
 
@@ -4269,5 +4410,43 @@
   if (els.btnClearMeasure) els.btnClearMeasure.addEventListener('click', () => clearMeasure());
   updateMeasureUi();
 
+  if (els.launchDisclaimerAccept && els.launchDisclaimerModal) {
+    els.launchDisclaimerAccept.addEventListener('click', () => setModalOpen(els.launchDisclaimerModal, false));
+    els.launchDisclaimerModal.addEventListener('click', (e) => {
+      if (e.target === els.launchDisclaimerModal) setModalOpen(els.launchDisclaimerModal, false);
+    });
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') setModalOpen(els.launchDisclaimerModal, false);
+    }, true);
+  }
+
+  if (els.btnHelp) els.btnHelp.addEventListener('click', () => openInfoModal('help'));
+  if (els.btnAbout) els.btnAbout.addEventListener('click', () => openInfoModal('about'));
+  if (els.infoModalOk) els.infoModalOk.addEventListener('click', () => closeInfoModal());
+  if (els.infoModalClose) els.infoModalClose.addEventListener('click', () => closeInfoModal());
+  if (els.infoTabHelp) els.infoTabHelp.addEventListener('click', () => loadInfoModalTab('help'));
+  if (els.infoTabAbout) els.infoTabAbout.addEventListener('click', () => loadInfoModalTab('about'));
+  if (els.infoTabLicense) els.infoTabLicense.addEventListener('click', () => loadInfoModalTab('license'));
+  if (els.infoModalCopy && els.infoModalBody) {
+    els.infoModalCopy.addEventListener('click', async () => {
+      const text = els.infoModalBody.textContent || '';
+      try {
+        await navigator.clipboard.writeText(text);
+        appendLog(els.importLog, 'Copied info text to clipboard.');
+      } catch (_e) {
+        appendLog(els.importLog, 'Copy failed (clipboard permissions).');
+      }
+    });
+  }
+  if (els.infoModal) {
+    els.infoModal.addEventListener('click', (e) => {
+      if (e.target === els.infoModal) closeInfoModal();
+    });
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeInfoModal();
+    }, true);
+  }
+
   setStatus('Idle', true);
+  showLaunchDisclaimerModal();
 })();
