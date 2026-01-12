@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SFRT Sphere Lattice (Web)</title>
+  <style>
+    :root {
+      --siemens-petrol: #009999;
+      --siemens-orange: #ec6602;
+      --black-100: #000000;
+      --black-75: #404040;
+      --black-50: #808080;
+      --black-25: #bfbfbf;
+      --black-10: #e6e6e6;
+      --black-7:  #ededed;
+
+      --primary-dark: #000000;
+      --secondary-dark: #404040;
+      --accent-primary: #009999;
+      --accent-secondary: #ec6602;
+      --accent-hover: #007777;
+      --panel-bg: #404040;
+      --panel-border: #808080;
+      --text-primary: #ffffff;
+      --text-secondary: #bfbfbf;
+      --text-dim: #808080;
+      --success: #009999;
+      --error: #ec6602;
+      --warning: #ec6602;
+      --input-bg: #000000;
+      --input-bg-focus: #0f0f0f;
+      --input-border: #808080;
+      --input-border-focus: var(--accent-primary);
+      --hover-bg: #404040;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--secondary-dark);
+      color: var(--text-primary);
+      overflow: hidden;
+    }
+
+    .app-container { display: flex; flex-direction: column; height: 100%; }
+    .header {
+      background: var(--primary-dark);
+      border-bottom: 1px solid var(--panel-border);
+      height: 56px;
+      display: flex;
+      align-items: center;
+    }
+    .header-content {
+      width: 100%;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .logo-section { display: flex; align-items: center; gap: 16px; }
+    .logo {
+      width: 32px; height: 32px;
+      background: var(--accent-primary);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 15px;
+      user-select: none;
+    }
+    .app-title { font-size: 18px; font-weight: 600; letter-spacing: -0.02em; }
+    .header-status { display: flex; align-items: center; gap: 16px; color: var(--text-secondary); font-size: 13px; }
+    .status-item { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+    .status-indicator { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+    .main-layout { display: flex; flex: 1; overflow: hidden; }
+    .sidebar {
+      width: 360px;
+      background: var(--panel-bg);
+      border-right: 1px solid var(--panel-border);
+      display: flex;
+      flex-direction: column;
+      overflow: auto;
+    }
+    .sidebar-section { padding: 16px 18px; border-bottom: 1px solid var(--panel-border); }
+    .section-header {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-dim);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-header::before {
+      content: '';
+      width: 3px; height: 12px;
+      background: var(--accent-primary);
+      border-radius: 2px;
+    }
+
+    .file-upload-area {
+      background: var(--input-bg);
+      border: 2px dashed var(--input-border);
+      border-radius: 8px;
+      padding: 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .file-upload-area:hover { border-color: var(--accent-primary); background: var(--input-bg-focus); }
+    .hint { color: var(--text-secondary); font-size: 13px; line-height: 1.35; }
+    .muted { color: var(--text-secondary); font-size: 12px; }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--panel-border);
+      background: rgba(255,255,255,0.05);
+      color: var(--text-secondary);
+      font-size: 11px;
+      margin: 8px 6px 0 0;
+      user-select: none;
+    }
+
+    label { display: block; font-size: 13px; color: var(--text-secondary); margin: 10px 0 6px; }
+    select, input[type="number"], input[type="text"] {
+      width: 100%;
+      background: var(--input-bg);
+      color: var(--text-primary);
+      border: 1px solid var(--input-border);
+      border-radius: 6px;
+      padding: 10px 10px;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+    select:focus, input:focus { border-color: var(--accent-primary); background: var(--input-bg-focus); box-shadow: 0 0 0 2px rgba(0,153,153,0.18); }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+    .checkbox-row { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+    .checkbox-row input { width: 16px; height: 16px; accent-color: var(--accent-primary); }
+
+    .btn-row { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+    .button {
+      background: var(--panel-bg);
+      border: 1px solid var(--input-border);
+      color: var(--text-primary);
+      border-radius: 6px;
+      padding: 10px 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 13px;
+      font-weight: 600;
+      min-height: 36px;
+    }
+    .button:hover { border-color: var(--accent-primary); background: var(--hover-bg); }
+    .button.primary { background: var(--accent-primary); border-color: var(--accent-primary); color: #fff; }
+    .button.primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+    .button:disabled { opacity: 0.6; cursor: not-allowed; }
+    .button.destructive { border-color: var(--error); color: var(--error); background: transparent; }
+    .button.destructive:hover { background: var(--error); color: #fff; }
+
+    .viewer {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      overflow: hidden;
+      background: var(--primary-dark);
+    }
+    .viewer-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.10);
+      color: var(--text-secondary);
+      font-size: 12px;
+      background: rgba(0,0,0,0.35);
+    }
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+    .topbar-tools {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 8px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(10,18,28,0.45);
+    }
+    .tool-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      user-select: none;
+    }
+    .tool-input {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+    .tool-input input[type="number"] {
+      width: 70px;
+      background: var(--input-bg);
+      color: var(--text-primary);
+      border: 1px solid var(--input-border);
+      border-radius: 6px;
+      padding: 6px 8px;
+    }
+    .button.sm {
+      padding: 7px 10px;
+      min-height: 30px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .button.active {
+      border-color: var(--accent-primary);
+      background: rgba(0,153,153,0.18);
+    }
+    .measure-label {
+      max-width: 340px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: var(--text-secondary);
+    }
+    .viewport-grid {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr;
+      grid-template-rows: 1fr;
+      gap: 0;
+      min-height: 0;
+    }
+    .viewport {
+      position: relative;
+      min-height: 0;
+      background: var(--primary-dark);
+    }
+
+    .context-menu {
+      position: fixed;
+      z-index: 1000;
+      min-width: 260px;
+      background: rgba(0,0,0,0.92);
+      border: 1px solid var(--panel-border);
+      border-radius: 10px;
+      padding: 10px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      display: none;
+    }
+    .context-menu .title {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+    }
+    .context-menu .title strong { color: var(--text-primary); font-weight: 700; }
+    .context-menu .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .context-menu .row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .context-menu input[type="number"] {
+      width: 90px;
+      background: var(--input-bg);
+      color: var(--text-primary);
+      border: 1px solid var(--input-border);
+      border-radius: 6px;
+      padding: 8px 8px;
+    }
+    .context-menu .button {
+      width: 100%;
+      padding: 9px 10px;
+      min-height: 34px;
+      font-size: 12px;
+    }
+    .context-menu .button.destructive {
+      border-color: var(--error);
+      color: var(--error);
+    }
+    canvas { display: block; }
+    .overlay-label {
+      position: absolute;
+      left: 10px;
+      top: 10px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(8,16,24,0.62);
+      color: var(--text-secondary);
+      font-size: 11px;
+      z-index: 5;
+      user-select: none;
+      pointer-events: none;
+    }
+    .overlay-label strong { color: var(--text-primary); }
+    .toast {
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      white-space: pre-wrap;
+      line-height: 1.35;
+    }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <div class="header">
+      <div class="header-content">
+        <div class="logo-section">
+          <div class="logo">SFRT</div>
+          <div class="app-title">Sphere Lattice (CT/RTSTRUCT → RS export)</div>
+        </div>
+        <div class="header-status">
+          <div class="status-item">
+            <span class="status-indicator" id="statusDot"></span>
+            <span id="statusText">Idle</span>
+          </div>
+          <div class="status-item mono" id="forUidText"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="main-layout">
+      <div class="sidebar">
+        <div class="sidebar-section">
+          <div class="section-header">Import</div>
+          <div class="file-upload-area" id="dropzone">
+            <div class="hint">Drop CT + RTSTRUCT DICOMs here<br/>or click to select files</div>
+            <div class="muted" style="margin-top:8px;">(Local only; no uploads)</div>
+          </div>
+          <input id="fileInput" type="file" multiple style="display:none" />
+          <div id="importPills"></div>
+          <div class="toast" id="importLog"></div>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="section-header">Selection</div>
+          <label>CT Series</label>
+          <select id="ctSeriesSelect" disabled></select>
+
+          <label>RTSTRUCT</label>
+          <select id="rsSelect" disabled></select>
+
+          <label>Target ROI (PTV)</label>
+          <select id="targetRoiSelect" disabled></select>
+
+          <label title="Shrinks the target ROI by this margin (mm) for sphere placement.\n\nEffect:\n- Full spheres only ON: requires a sphere of radius (r + margin) to fit inside the PTV.\n- Full spheres only OFF: requires the sphere center to be at least margin mm from the PTV boundary.\n\nDefault: 5 mm">Target Boundary Margin (mm)</label>
+          <input id="marginInput" type="number" min="0" step="0.1" value="5" disabled />
+        </div>
+
+        <div class="sidebar-section">
+          <div class="section-header">Lattice</div>
+          <label>Pattern</label>
+          <select id="patternSelect" disabled>
+            <option value="hcp">Hexagonal Closest Packed (HCP)</option>
+            <option value="sc">Simple Cubic (SC)</option>
+            <option value="ac">Alternating Cubic (AC)</option>
+            <option value="cvt3d">Centroidal Voronoi Tessellation (CVT3D)</option>
+          </select>
+
+          <label>Sphere Set</label>
+          <select id="sphereSetSelect" disabled>
+            <option value="peaks">Peak (Hot) spheres</option>
+            <option value="peaks_cold">Peak (Hot) + Inter-planar (Cold) spheres</option>
+            <option value="peaks_warm_cold">Peak + Intra-planar (Warm) + Inter-planar (Cold) spheres</option>
+          </select>
+
+	          <div class="row">
+	            <div>
+	              <label>Radius (mm)</label>
+	              <input id="radiusInput" type="number" min="0" step="0.1" value="5" disabled />
+	            </div>
+	            <div>
+	              <label title="Minimum peak-to-peak center-to-center distance (mm).\n\nNotes:\n- For SC/HCP this equals the nearest-neighbor lattice spacing.\n- For AC/CVT3D it is enforced as a minimum nearest-neighbor distance.">Spacing (CTC, mm)</label>
+	              <input id="spacingInput" type="number" min="0" step="0.1" value="50" disabled />
+	            </div>
+	          </div>
+          <div class="row">
+            <div>
+              <label title="Translates the entire lattice in patient Left/Right (mm) before sphere-in-ROI testing.">X Shift (mm)</label>
+              <input id="xShiftInput" type="number" step="0.1" value="0" disabled />
+            </div>
+            <div>
+              <label title="Translates the entire lattice in patient Posterior/Anterior (mm) before sphere-in-ROI testing.">Y Shift (mm)</label>
+              <input id="yShiftInput" type="number" step="0.1" value="0" disabled />
+            </div>
+          </div>
+
+          <div class="checkbox-row">
+            <input id="fullOnlyCheck" type="checkbox" checked disabled />
+            <label for="fullOnlyCheck" style="margin:0; cursor:pointer;">Full spheres only (surface-in-ROI test)</label>
+          </div>
+
+          <div class="row">
+            <div>
+              <label>Sphere Name (ROI)</label>
+              <input id="sphereRoiName" type="text" value="LatticeSpheres" disabled />
+            </div>
+            <div>
+              <label>Circle Segments</label>
+              <input id="circleSegInput" type="number" min="12" step="1" value="64" disabled />
+            </div>
+          </div>
+
+          <div class="btn-row">
+            <button class="button primary" id="btnGenerate" disabled>Generate Spheres</button>
+            <button class="button" id="btnClear" disabled>Clear</button>
+          </div>
+          <div class="toast" id="genLog"></div>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="section-header">Supporting Structure</div>
+          <div class="checkbox-row">
+            <input id="supportEnableCheck" type="checkbox" disabled />
+            <label for="supportEnableCheck" style="margin:0; cursor:pointer;">Enable supporting ROIs (inner / mid / outer)</label>
+          </div>
+	          <div class="row3">
+	            <div>
+	              <label title="Inner shell thickness (mm) from the surface of the generated Peak spheres.\n\nInner = 0 → Inner mm from sphere surface (outside the sphere union).">Inner (mm)</label>
+	              <input id="supportInnerMm" type="number" min="0" step="0.5" value="5" disabled />
+	            </div>
+	            <div>
+	              <label title="Mid shell thickness beyond Inner (mm).\n\nMid = Inner → (Inner+Mid) mm from sphere surface.">Mid (mm)</label>
+	              <input id="supportMidMm" type="number" min="0" step="0.5" value="10" disabled />
+	            </div>
+	            <div>
+	              <label title="Outer shell thickness beyond (Inner+Mid) (mm).\n\nOuter = (Inner+Mid) → (Inner+Mid+Outer) mm from sphere surface.">Outer (mm)</label>
+	              <input id="supportOuterMm" type="number" min="0" step="0.5" value="20" disabled />
+	            </div>
+	          </div>
+          <div class="btn-row">
+            <button class="button" id="btnSupportPreview" disabled>Preview / Log</button>
+          </div>
+          <div class="toast" id="supportLog"></div>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="section-header">Export</div>
+          <div class="btn-row">
+            <button class="button primary" id="btnExport" disabled>Export RTSTRUCT</button>
+          </div>
+          <div class="toast" id="exportLog"></div>
+        </div>
+      </div>
+
+      <div class="viewer">
+        <div class="viewer-topbar">
+          <div>
+            <span class="mono" id="sliceLabel">Slice: —</span>
+            <span class="mono" id="wlLabel" style="margin-left:10px;">WL: —</span>
+          </div>
+          <div class="topbar-actions">
+            <span class="mono measure-label" id="measureLabel">Measure: —</span>
+            <button class="button sm" id="btnMeasure" type="button" title="Toggle measure tool.\n\nWhen enabled: click once to set start, click again to set end.\nClick a third time to start a new measurement.">Measure</button>
+            <button class="button sm" id="btnClearMeasure" type="button" title="Clear current measurement.">Clear</button>
+            <div class="topbar-tools">
+              <label class="tool-toggle" title="Show a thin grid overlay in all views.">
+                <input id="showGridCheck" type="checkbox" />
+                Show grid
+              </label>
+              <label class="tool-input" title="Grid spacing in millimeters.">
+                Grid (mm)
+                <input id="gridSpacingInput" type="number" min="1" step="1" value="50" />
+              </label>
+              <label class="tool-toggle" title="Show a fixed-radius circle around the mouse position.">
+                <input id="showCursorCheck" type="checkbox" />
+                Circular cursor
+              </label>
+              <label class="tool-input" title="Circular cursor radius in millimeters.">
+                Radius (mm)
+                <input id="cursorRadiusInput" type="number" min="0.5" step="0.5" value="5" />
+              </label>
+            </div>
+            <div class="mono" id="roiInfo">ROI: —</div>
+          </div>
+        </div>
+        <div class="viewport-grid" style="grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 1px; background: rgba(255,255,255,0.10);">
+          <div class="viewport" id="axialViewport" style="background: var(--primary-dark);">
+            <div class="overlay-label"><strong>Axial</strong></div>
+            <canvas id="axialCanvas"></canvas>
+            <canvas id="axialOverlay" style="position:absolute; inset:0; pointer-events:none;"></canvas>
+          </div>
+          <div class="viewport" id="sagittalViewport" style="background: var(--primary-dark);">
+            <div class="overlay-label"><strong>Sagittal</strong></div>
+            <canvas id="sagittalCanvas"></canvas>
+            <canvas id="sagittalOverlay" style="position:absolute; inset:0; pointer-events:none;"></canvas>
+          </div>
+          <div class="viewport" id="coronalViewport" style="background: var(--primary-dark);">
+            <div class="overlay-label"><strong>Coronal</strong></div>
+            <canvas id="coronalCanvas"></canvas>
+            <canvas id="coronalOverlay" style="position:absolute; inset:0; pointer-events:none;"></canvas>
+          </div>
+          <div class="viewport" id="threeViewport" style="background: var(--primary-dark);">
+            <div class="overlay-label"><strong>3D</strong> <span style="opacity:0.8;">(PTV + spheres)</span></div>
+            <canvas id="threeCanvas"></canvas>
+            <div class="overlay-label" id="threeHint" style="left:auto; right:10px; top:10px;"><span class="mono">drag=orbit • wheel=zoom</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="context-menu" id="sphereMenu">
+    <div class="title">
+      <div><strong id="sphereMenuTitle">Sphere</strong></div>
+      <div class="mono" id="sphereMenuKind" style="opacity:0.9;"></div>
+    </div>
+    <div class="row">
+      <label for="sphereMoveStep" style="margin:0; width:auto;">Step (mm)</label>
+      <input id="sphereMoveStep" type="number" min="0.1" step="0.1" value="1.0" />
+    </div>
+    <div class="grid">
+      <button class="button" id="sphereMoveXp">Move +X (Left)</button>
+      <button class="button" id="sphereMoveXm">Move -X (Right)</button>
+      <button class="button" id="sphereMoveYp">Move +Y (Post)</button>
+      <button class="button" id="sphereMoveYm">Move -Y (Ant)</button>
+      <button class="button" id="sphereMoveZp">Move +Z (Head)</button>
+      <button class="button" id="sphereMoveZm">Move -Z (Feet)</button>
+    </div>
+    <div class="row">
+      <button class="button destructive" id="sphereDelete">Delete Sphere</button>
+    </div>
+  </div>
+
+  <script src="vendor/dicom-parser.min.js"></script>
+  <script src="vendor/dcmjs.js"></script>
+  <script src="vendor/rt-layered-cake.js"></script>
+  <script src="src/viewer3d.js"></script>
+  <script src="src/app.js"></script>
+</body>
+</html>
