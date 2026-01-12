@@ -1,0 +1,30 @@
+{
+  "$schema": "../node_modules/@tauri-apps/cli/schema.json",
+  "productName": "SFRT Sphere Lattice",
+  "version": "0.1.0",
+  "identifier": "com.sfrt.sphere-lattice",
+  "build": {
+    "beforeDevCommand": "npm run serve",
+    "beforeBuildCommand": "npm run build:tauri",
+    "devUrl": "http://localhost:8000",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "SFRT Sphere Lattice",
+        "width": 1280,
+        "height": 860,
+        "resizable": true,
+        "dragDropEnabled": false
+      }
+    ]
+  },
+  "bundle": {
+    "active": false,
+    "icon": [
+      "icons/icon.ico",
+      "icons/icon.png"
+    ]
+  }
+}

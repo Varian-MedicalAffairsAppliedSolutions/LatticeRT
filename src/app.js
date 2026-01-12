@@ -262,6 +262,7 @@
     // about
     els.infoModalBody.textContent = [
       'SFRT Sphere Lattice (Web)',
+      'Version: 0.1.0',
       '',
       'Primary reference (upstream inspiration):',
       'https://github.com/Varian-MedicalAffairsAppliedSolutions/MAAS-SFRThelper',

@@ -10,6 +10,12 @@
   },
   "scripts": {
     "serve": "node scripts/serve.mjs",
-    "build:standalone": "node scripts/build-standalone.mjs"
+    "build:standalone": "node scripts/build-standalone.mjs",
+    "build:tauri": "node scripts/build-tauri.mjs",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "npm run build:tauri && tauri build"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.0.0"
   }
 }
