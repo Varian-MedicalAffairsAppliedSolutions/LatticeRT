@@ -1,6 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+	<script>
+		(function enforceGate() {
+			try {
+				const registered = localStorage.getItem('latticert_registered');
+				const token = localStorage.getItem('latticert_registration_token');
+				const valid = registered === 'true' && token === '91ECC2A2';
+				if (!valid) {
+					window.location.replace('gate/index.html');
+				}
+			} catch (err) {
+				window.location.replace('gate/index.html');
+			}
+		})();
+	</script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SFRT Sphere Lattice (Web)</title>
