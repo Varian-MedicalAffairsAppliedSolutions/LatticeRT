@@ -4,6 +4,5 @@
     "\\.github",
     "\\.github\\workflows"
   ],
-  "SelectedNode": "\\.github\\workflows\\tauri-windows-release.yml",
   "PreviewInSolutionExplorer": false
 }
