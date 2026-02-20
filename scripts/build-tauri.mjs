@@ -13,5 +13,6 @@ mkdirSync(distDir, { recursive: true });
 cpSync(resolve(root, "index.html"), resolve(distDir, "index.html"));
 cpSync(resolve(root, "src"), resolve(distDir, "src"), { recursive: true });
 cpSync(resolve(root, "vendor"), resolve(distDir, "vendor"), { recursive: true });
+cpSync(resolve(root, "gate"), resolve(distDir, "gate"), { recursive: true });
 
 console.log(`Wrote ${distDir}`);
