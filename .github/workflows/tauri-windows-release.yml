@@ -1,0 +1,73 @@
+name: tauri-windows-release
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - release
+
+jobs:
+  build-and-release:
+    permissions:
+      contents: write
+    runs-on: windows-latest
+
+    defaults:
+      run:
+        working-directory: sfrt-sphere-lattice-web
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      - name: Install Rust (stable)
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: |
+            src-tauri -> src-tauri/target
+
+      - name: Install deps (npm)
+        run: npm install
+
+      - name: Read app version
+        shell: pwsh
+        run: |
+          $conf = Get-Content "src-tauri/tauri.conf.json" -Raw | ConvertFrom-Json
+          "APP_VERSION=$($conf.version)" | Out-File -FilePath $env:GITHUB_ENV -Append
+          $srcTauriDir = Resolve-Path "src-tauri"
+          $frontendRel = $conf.build.frontendDist
+          $frontendAbs = Join-Path $srcTauriDir $frontendRel
+          Write-Host "src-tauri dir: $srcTauriDir"
+          Write-Host "frontendDist (rel): $frontendRel"
+          Write-Host "frontendDist (abs): $frontendAbs"
+          Write-Host "frontendDist exists? " (Test-Path $frontendAbs)
+          Write-Host "frontendDist index exists? " (Test-Path (Join-Path $frontendAbs "index.html"))
+          if (Test-Path $frontendAbs) {
+            Write-Host "frontendDist listing (first 80):"
+            Get-ChildItem -Force $frontendAbs | Select-Object -First 80 | Format-Table -AutoSize
+          }
+
+      - name: Build (tauri)
+        env:
+          RUST_BACKTRACE: "1"
+          TAURI_LOG_LEVEL: "debug"
+        run: npm run tauri:build -- --target x86_64-pc-windows-msvc
+
+      - name: Create GitHub Release + upload exe
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: latticert-v${{ env.APP_VERSION }}
+          name: LatticeRT v${{ env.APP_VERSION }}
+          body: Automated Tauri build from the release branch.
+          files: sfrt-sphere-lattice-web/src-tauri/target/x86_64-pc-windows-msvc/release/sfrt_sphere_lattice.exe

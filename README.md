@@ -1,5 +1,9 @@
 # SFRT Sphere Lattice (Web)
 
+<p align="center">
+  <img src="docs/images/Lattice-screenshot.png" alt="LatticeRT screenshot" width="980" />
+</p>
+
 Browser-based, local-only research tool to:
 - Load a CT series + RTSTRUCT from local DICOM files (no uploads)
 - Select a target ROI (typically PTV)

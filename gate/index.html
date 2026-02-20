@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LatticeRT - Access</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f7f6;
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 600px;
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        .description {
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .disclaimer {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+
+        .disclaimer h3 {
+            color: #856404;
+            margin-top: 0;
+        }
+
+        .start-button {
+            background-color: #3498db;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: background-color 0.3s;
+        }
+
+        .start-button:hover {
+            background-color: #2980b9;
+        }
+
+        .footer {
+            margin-top: 30px;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .footer a {
+            color: #3498db;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>LatticeRT</h1>
+
+        <div class="description">
+            <p>LatticeRT is a browser-based research tool to load CT + RTSTRUCT DICOMs locally, generate sphere
+                lattices, and export a derived RTSTRUCT—no data leaves your machine.</p>
+        </div>
+
+        <div class="disclaimer">
+            <h3>⚠️ Important Notice</h3>
+            <p><strong>Research only. Not validated for clinical use.</strong></p>
+            <p>By continuing, you acknowledge that:</p>
+            <ul>
+                <li>This tool is for research/education, not for diagnosis or treatment planning</li>
+                <li>You must review and verify any exported DICOM content</li>
+                <li>You will comply with the Varian Limited Use Software License Agreement</li>
+            </ul>
+        </div>
+
+        <!-- China Access Message -->
+        <div
+            style="background-color: #e8f4fd; border: 1px solid #b6e0fe; border-radius: 4px; padding: 15px; margin-bottom: 30px; text-align: left; color: #0c5460;">
+            <p style="margin-top: 0; font-weight: bold;"> Registration for China Users / 中国大陆用户注册说明</p>
+            <p><strong>中国大陆用户:</strong> 如果您无法看到注册页面或表格, 请发送您的姓名和医院/学校名称及地址到 <a
+                    href="mailto:maas.team@varian.com">maas.team@varian.com</a>, 我们将尽快以邮件形式发送您的注册码</p>
+            <p style="margin-bottom: 0;"><strong>China mainland users:</strong> If you cannot access the registration
+                page, please email your name and hospital/school name and address to <a
+                    href="mailto:maas.team@varian.com">maas.team@varian.com</a>, and we will send you the registration
+                code by email as soon as possible.</p>
+        </div>
+
+        <a href="register.html" class="start-button">Start Registration & Access LatticeRT</a>
+
+        <div class="footer">
+            <p>By using this software, you agree to be bound by the terms of the <a href="VarianLUSLA.html"
+                    target="_blank">Varian Limited Use Software License Agreement</a></p>
+            <p><strong>Project:</strong> LatticeRT</p>
+        </div>
+    </div>
+
+    <script>
+        const STORAGE_KEYS = {
+            registered: 'latticert_registered',
+            token: 'latticert_registration_token'
+        };
+        const VALID_TOKEN = '91ECC2A2';
+
+        // Check if already registered and redirect if so
+        window.addEventListener('load', function () {
+            const isRegistered = localStorage.getItem(STORAGE_KEYS.registered);
+            const token = localStorage.getItem(STORAGE_KEYS.token);
+            if (isRegistered === 'true' && token === VALID_TOKEN) {
+                // If already registered, redirect directly to app
+                window.location.href = '../index.html';
+            }
+        });
+
+        // Enhanced connection status awareness with actual internet testing
+        function updateConnectionStatus() {
+            const startButton = document.querySelector('.start-button');
+
+            if (!navigator.onLine) {
+                startButton.textContent = 'Start Registration (Offline Mode Available)';
+                startButton.title = 'Registration available via mobile QR code when offline';
+                return;
+            }
+
+            // Test actual internet connectivity
+            testBasicConnectivity()
+                .then(function (hasInternet) {
+                    if (hasInternet) {
+                        startButton.textContent = 'Start Registration & Access App';
+                        startButton.title = '';
+                    } else {
+                        startButton.textContent = 'Start Registration (Offline Mode Available)';
+                        startButton.title = 'Network detected but no internet access - mobile registration available';
+                    }
+                })
+                .catch(function () {
+                    startButton.textContent = 'Start Registration (Offline Mode Available)';
+                    startButton.title = 'Unable to verify internet access - mobile registration available';
+                });
+        }
+
+        // Simple connectivity test for index page
+        function testBasicConnectivity() {
+            return new Promise(function (resolve) {
+                const img = new Image();
+                const timeout = setTimeout(function () {
+                    resolve(false);
+                }, 3000);
+
+                img.onload = function () {
+                    clearTimeout(timeout);
+                    resolve(true);
+                };
+
+                img.onerror = function () {
+                    clearTimeout(timeout);
+                    resolve(false);
+                };
+
+                img.src = 'https://www.google.com/favicon.ico?t=' + Date.now();
+            });
+        }
+
+        // Update status on load and connection changes
+        window.addEventListener('load', updateConnectionStatus);
+        window.addEventListener('online', updateConnectionStatus);
+        window.addEventListener('offline', updateConnectionStatus);
+    </script>
+</body>
+
+</html>
