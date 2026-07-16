@@ -2,6 +2,11 @@
 (function () {
   'use strict';
 
+  const pendingLaunchRoiName =
+    typeof window.latticeLaunchParams?.targetRoiName === 'string'
+      ? window.latticeLaunchParams.targetRoiName.trim()
+      : '';
+
   const els = {
     statusDot: document.getElementById('statusDot'),
     statusText: document.getElementById('statusText'),
@@ -775,7 +780,10 @@
       els.targetRoiSelect.appendChild(opt);
       if (idx === names.length - 1) state.targetName = name; // mimic "last TV" behavior in SFRTHelper
     });
-    if (state.targetName && names.includes(state.targetName)) els.targetRoiSelect.value = state.targetName;
+    if (pendingLaunchRoiName && names.includes(pendingLaunchRoiName)) {
+      state.targetName = pendingLaunchRoiName;
+      els.targetRoiSelect.value = state.targetName;
+    } else if (state.targetName && names.includes(state.targetName)) els.targetRoiSelect.value = state.targetName;
     else if (names.length) {
       state.targetName = names[0];
       els.targetRoiSelect.value = state.targetName;
